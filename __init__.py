@@ -6,13 +6,22 @@ import bpy
 import importlib
 from typing import Optional
 
+# DEBUG setting to control print statements
+DEBUG = False  # Set to True for debugging (prints enabled), False to disable prints
+
+
+def debug_print(*args, **kwargs):
+    """Conditional print function based on the DEBUG variable."""
+    if DEBUG:
+        print(*args, **kwargs)
+
 
 # Add-on Info Block
 bl_info = {
-    "name": "Virtual Dependencies",
+    "name": "Verv_Req Add-On",
     "blender": (3, 6, 0),
     "category": "System",
-    "author": "tintwotin",
+    "author": "Your Name",
     "version": (1, 0, 0),
     "description": "A Blender add-on for managing a virtual environment and installing Python dependencies.",
     "license": "GPL-3.0",
@@ -22,41 +31,41 @@ bl_info = {
 def addon_script_path() -> str:
     """Return the path where the add-on script is located (addon directory)."""
     addon_path = os.path.dirname(__file__)  # Use __file__ to get the script directory
-    print(f"Addon script path is: {addon_path}")
+    debug_print(f"Addon script path is: {addon_path}")
     return addon_path
 
 
-def venv_path(env_name="virtual_dependencies") -> str:
+def venv_path(env_name="Verv_Req_env") -> str:
     """Define the path for the virtual environment directory in the add-on's folder."""
     addon_path = addon_script_path()
     env_path = os.path.join(addon_path, env_name)  # Create virtual environment relative to add-on script
-    print(f"Virtual environment path is: {env_path}")
+    debug_print(f"Virtual environment path is: {env_path}")
     return env_path
 
 
 def python_exec() -> str:
     """Return the path to the Python executable in the virtual environment if it exists."""
     env_python = os.path.join(venv_path(), 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path(), 'bin', 'python')
-    print(f"Python executable in the virtual environment is: {env_python}")
+    debug_print(f"Python executable in the virtual environment is: {env_python}")
     return env_python if os.path.exists(env_python) else sys.executable
 
 
-def create_venv(env_name="virtual_dependencies"):
+def create_venv(env_name="Verv_Req_env"):
     """Create a virtual environment if it doesn't exist."""
     env_dir = venv_path(env_name)
     if not os.path.exists(env_dir):
         venv.create(env_dir, with_pip=True)
-        print(f"Virtual environment created at {env_dir}")
+        debug_print(f"Virtual environment created at {env_dir}")
         ensure_pip_installed()  # Ensure pip is available after environment creation
     else:
-        print("Virtual environment already exists.")
+        debug_print("Virtual environment already exists.")
 
 
 def ensure_pip_installed():
     """Ensure pip is installed in the virtual environment."""
     python_exe = python_exec()
     subprocess.run([python_exe, '-m', 'ensurepip'])
-    print("Ensured that pip is installed.")
+    debug_print("Ensured that pip is installed.")
 
 
 def install_packages(override: Optional[bool] = False):
@@ -93,9 +102,9 @@ def add_virtualenv_to_syspath():
     # Add the virtual environment directory to sys.path for imports
     if os.path.exists(env_dir):
         sys.path.append(env_dir)
-        print(f"Added virtual environment directory to sys.path: {env_dir}")
+        debug_print(f"Added virtual environment directory to sys.path: {env_dir}")
     else:
-        print(f"Virtual environment directory not found at: {env_dir}")
+        debug_print(f"Virtual environment directory not found at: {env_dir}")
 
 
 def check_dependencies_installed() -> bool:
@@ -103,7 +112,7 @@ def check_dependencies_installed() -> bool:
     requirements_txt = os.path.join(addon_script_path(), "requirements.txt")
     
     if not os.path.exists(requirements_txt):
-        print(f"Requirements file '{requirements_txt}' not found.")
+        debug_print(f"Requirements file '{requirements_txt}' not found.")
         return False
 
     with open(requirements_txt, 'r') as file:
@@ -117,13 +126,13 @@ def check_dependencies_installed() -> bool:
         if package_name:  # Avoid empty lines
             try:
                 importlib.import_module(package_name)
-                print(f"Package '{package_name}' is already installed and importable.")
+                debug_print(f"Package '{package_name}' is already installed and importable.")
             except ImportError:
                 missing_packages.append(package_name)
-                print(f"Package '{package_name}' is missing or not importable.")
+                debug_print(f"Package '{package_name}' is missing or not importable.")
 
     if missing_packages:
-        print(f"Missing or non-importable packages: {', '.join(missing_packages)}")
+        debug_print(f"Missing or non-importable packages: {', '.join(missing_packages)}")
         return False
     return True
 
@@ -134,7 +143,7 @@ def uninstall_packages():
     requirements_txt = os.path.join(addon_script_path(), "requirements.txt")
 
     if not os.path.exists(requirements_txt):
-        print("Requirements file not found for uninstallation.")
+        debug_print("Requirements file not found for uninstallation.")
         return
 
     # Ensure pip is installed before running uninstall
@@ -147,7 +156,7 @@ def uninstall_packages():
         package_name = package.strip()
         if package_name:  # Avoid empty lines
             subprocess.run([python_exe, '-m', 'pip', 'uninstall', '-y', package_name])
-            print(f"Uninstalled package: {package_name}")
+            debug_print(f"Uninstalled package: {package_name}")
 
 
 # Panel for Add-On Preferences
