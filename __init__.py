@@ -1,3 +1,14 @@
+# Add-on Info Block
+bl_info = {
+    "name": "Virtual Dependencies",
+    "blender": (3, 6, 0),
+    "category": "System",
+    "author": "tintwotin",
+    "version": (1, 0, 0),
+    "description": "A Blender add-on for managing a virtual environment and installing Python dependencies.",
+    "license": "GPL-3.0",
+}
+
 import os
 import sys
 import venv
@@ -16,16 +27,6 @@ def debug_print(*args, **kwargs):
         print(*args, **kwargs)
 
 
-# Add-on Info Block
-bl_info = {
-    "name": "Verv_Req Add-On",
-    "blender": (3, 6, 0),
-    "category": "System",
-    "author": "Your Name",
-    "version": (1, 0, 0),
-    "description": "A Blender add-on for managing a virtual environment and installing Python dependencies.",
-    "license": "GPL-3.0",
-}
 
 
 def addon_script_path() -> str:
@@ -35,7 +36,7 @@ def addon_script_path() -> str:
     return addon_path
 
 
-def venv_path(env_name="Verv_Req_env") -> str:
+def venv_path(env_name="virtual_dependencies") -> str:
     """Define the path for the virtual environment directory in the add-on's folder."""
     addon_path = addon_script_path()
     env_path = os.path.join(addon_path, env_name)  # Create virtual environment relative to add-on script
@@ -50,7 +51,7 @@ def python_exec() -> str:
     return env_python if os.path.exists(env_python) else sys.executable
 
 
-def create_venv(env_name="Verv_Req_env"):
+def create_venv(env_name="virtual_dependencies"):
     """Create a virtual environment if it doesn't exist."""
     env_dir = venv_path(env_name)
     if not os.path.exists(env_dir):
